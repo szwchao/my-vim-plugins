@@ -186,6 +186,8 @@ hi StatusLineNC    guifg=#a9ce49    guibg=#4E4E4E    gui=bold
 
 " 左侧的标志条
 hi SignColumn   guibg=#05131c
+" 标志条书签颜色
+hi BookmarkLineColor    guifg=white       guibg=#2f4f4f
 
 " 括号匹配
 hi MatchParen    guifg=#000000    guibg=#ef008c

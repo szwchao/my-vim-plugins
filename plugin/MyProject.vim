@@ -41,8 +41,6 @@ else
 endif
 " 窗口高度
 call s:Set('g:MyProjectWinHeight', "15")
-" seagate编译选项
-call s:Set('g:EnableAddF3MakeVar', '0')
 "}}}
 
 "调试{{{2
@@ -180,7 +178,7 @@ endfun
 " @返 回 值：   字典s:my_project_dict，格式:
 "               {'name':{'SourceCodeDirx':xxx, 'FilenametagsDirx':'xxx', 
 "                        'tags':'xxx', 'cscope':'xxx', 'filenametags':'xxx',
-"                        'cache':'xxx'}}
+"                        }}
 "* --------------------------------------------------------------------------*/
 fun! s:SetMyProjectDict()
     let s:my_project_dict = s:ParseIni(readfile(s:my_project_config_file))
@@ -291,20 +289,6 @@ fun! s:InputSourceCodeDir(source_type)
     return source_dir
 endfun
 
-"* --------------------------------------------------------------------------*/
-" @函数说明：   输入f3make的相关参数，包括：
-"               1. target编译命令
-" @参    数：   project_name - 工程名
-" @参    数：   source_dir - 源码目录
-" @返 回 值：   f3make的参数列表
-"* --------------------------------------------------------------------------*/
-fun! s:InputF3MakeVar(project_name, source_dir)
-    let f3make_list = []
-
-    let build_target = input("指定编译的Target: ")
-    call add(f3make_list, 'build_target = '. build_target)
-    return f3make_list
-endfun
 
 fun! s:AddNewMyProject()
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -345,19 +329,16 @@ fun! s:AddNewMyProject()
         let tags = "tags"
         let cscope = "cscope.out"
         let filenametags = "filenametags"
-        let cache= "cache"
     else
         let tags = input("input tags file name(Default:tags)")
         let cscope = input("input cscope file name(Default:cscope.out)")
         let filenametags = input("input filenametags file name(Default:filenametags)")
-        let cache = input("input cache file name(Default:cache)")
     endif
     let esc_filename_chars = ' *?[{`$%#"|!<>();&' . "'\t\n"
     let this_project_dir = escape(s:GetMyProjectConfigDir().g:slash.project_name, esc_filename_chars)
     let tags = this_project_dir.g:slash.tags
     let cscope = this_project_dir.g:slash.cscope
     let filenametags = this_project_dir.g:slash.filenametags
-    let cache = this_project_dir.g:slash.cache
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     let source_list = []
@@ -383,22 +364,9 @@ fun! s:AddNewMyProject()
     call add(tags_cscope_filenametags_list, 'filenametags = '.filenametags)
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    let cache_list = []
-    call add(cache_list, 'cache = '.cache)
-
-    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    let f3make_list = []
-    if g:EnableAddF3MakeVar == 1
-        let l:ans = input("添加f3make相关参数？[Y/N] ")
-        if l:ans == 'y' || l:ans == 'Y'
-            let f3make_list = s:InputF3MakeVar(project_name, source_code_dir[0])
-        endif
-    endif
-
-    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     "输出到文件
     let item = ['', '[' . project_name . ']']
-    let output = readfile(s:my_project_config_file) + item + source_list + filenametags_list + tags_cscope_filenametags_list + cache_list + f3make_list
+    let output = readfile(s:my_project_config_file) + item + source_list + filenametags_list + tags_cscope_filenametags_list
     call writefile(output, s:my_project_config_file)
     echo "成功添加新工程：" . project_name 
     call StartMyProject()
@@ -529,8 +497,6 @@ fun! s:SetTagsCscopeFilenametags()
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if has_key(cur_prj, "name")
         let g:current_project_name = cur_prj['name']
-        " fuf提示符
-        let g:fuf_mytaggedfile_prompt = '>'.cur_prj['name'].'>'
     endif
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if has_key(cur_prj, "tags")
@@ -550,13 +516,6 @@ fun! s:SetTagsCscopeFilenametags()
     if has_key(cur_prj, "filenametags")
         if filereadable(cur_prj["filenametags"])
             let g:filenametags = cur_prj["filenametags"]
-        endif
-    endif
-    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    "供fuf使用
-    if has_key(cur_prj, "cache")
-        if filereadable(cur_prj["cache"])
-            let g:project_cache = cur_prj["cache"]
         endif
     endif
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -584,7 +543,7 @@ fun! s:UpdateProjectUnderCursor()
     let l:cur_prj = s:GetProjectUnderCursor()
     let l:src_dir_list = []
     let l:fntags_dir_list = []
-    let l:update_option = {'tags':1, 'cscope':1, 'filenametags':1, 'cache':1}
+    let l:update_option = {'tags':1, 'cscope':1, 'filenametags':1}
     for key in keys(l:cur_prj)
         let l:src_dir = matchstr(key, '^SourceCodeDir\d*')
         if l:src_dir != ""
@@ -597,7 +556,7 @@ fun! s:UpdateProjectUnderCursor()
             call add(l:fntags_dir_list, l:cur_prj[key])
         endif
     endfor
-    let l:ans = input("更新所有的tags, cscope, filenametags, cache? [Y/N] ")
+    let l:ans = input("更新所有的tags, cscope, filenametags? [Y/N] ")
     if (l:ans == 'n') || (l:ans == 'N')
         let l:ans = input("更新tags? [Y/N] ")
         if (l:ans == 'n') || (l:ans == 'N')
@@ -611,10 +570,6 @@ fun! s:UpdateProjectUnderCursor()
         if (l:ans == 'n') || (l:ans == 'N')
             let l:update_option['filenametags'] = 0
         endif
-        let l:ans = input("更新cache? [Y/N] ")
-        if (l:ans == 'n') || (l:ans == 'N')
-            let l:update_option['cache'] = 0
-        endif
     endif
     echo "\n"
     if l:update_option['tags'] == 1
@@ -625,9 +580,6 @@ fun! s:UpdateProjectUnderCursor()
     endif
     if l:update_option['filenametags'] == 1
         call UpdateMyProjectFilenametags(l:fntags_dir_list, l:cur_prj["filenametags"])
-    endif
-    if l:update_option['cache'] == 1
-        call UpdateMyProjectCache(l:cur_prj["filenametags"], l:cur_prj["cache"])
     endif
     call s:LoadProjectUnderCursor()
 endfun
@@ -731,7 +683,7 @@ function! s:MyProjectCreateHelp()
         call add(header, '" <F1> : 切换帮助')
         call add(header, '" <回车>: 加载工程')
         call add(header, '" a : 增加新工程')
-        call add(header, '" u : 更新tags/cscope/filenametags/cache')
+        call add(header, '" u : 更新tags/cscope/filenametags')
         call add(header, '" d : 删除工程')
         call add(header, '" e : 编辑config文件')
         call add(header, '" <ESC> : 退出')
@@ -904,46 +856,6 @@ function! UpdateMyProjectFilenametags(fntags_dir_list, filenametags)
     call writefile(l:final_filenametags, l:output_filenametags)
     let elapsedtimestr = matchstr(reltimestr(reltime(starttime)),'\d\+\(\.\d\d\)\=')
     echo "filenametags已创建! ". '(time: '.elapsedtimestr.'s)'
-endfunction
-"-----------------------------------------------------------------------------"
-"}}}
-
-" 生成cache {{{2
-"-----------------------------------------------------------------------------"
-"生成cache，用于fuzzyfinder的taggedfile模式快速打开文件，需要先生成filenametags
-function! UpdateMyProjectCache(filenametags, cache_file)
-    if !filereadable(a:filenametags)
-        call delete(a:filenametags)
-        echo "需要先生成filenametags"
-        return
-    endif
-    let starttime = reltime()  " start the clock
-    echo "生成cache中..."
-    let tags=[a:filenametags]
-    let tags = sort(filter(map(tags, 'fnamemodify(v:val, '':p'')'), 'filereadable(v:val)'))
-    let cacheName = a:cache_file
-    "let items = []
-    let items = l9#unique(l9#concat(map(copy(tags), 's:gettaggedfileList(v:val)')))
-    call map(items, 'fuf#makePathItem(v:val, "", 0)')
-    call fuf#mapToSetSerialIndex(items, 1)
-    call fuf#mapToSetAbbrWithSnippedWordAsPath(items)
-    call s:saveDataFile(cacheName, items)
-    let elapsedtimestr = matchstr(reltimestr(reltime(starttime)),'\d\+\(\.\d\d\)\=')
-    echo "cache已创建! " . '(time: '.elapsedtimestr.'s)'
-endfunction
-
-function s:gettaggedfileList(tagfile)
-    execute 'cd ' . fnamemodify(a:tagfile, ':h')
-    let result = map(l9#readFile(a:tagfile), 'matchstr(v:val, ''^[^!\t][^\t]*\t\zs[^\t]\+'')')
-    call map(l9#readFile(a:tagfile), 'fnamemodify(v:val, ":p")')
-    cd -
-    call map(l9#readFile(a:tagfile), 'fnamemodify(v:val, ":~:.")')
-    return filter(result, 'v:val =~# ''[^/\\ ]$''')
-endfunction
-
-function! s:saveDataFile(dataName, items)
-    let lines = map(copy(a:items), 'string(v:val)')
-    return l9#writeFile(lines, a:dataName)
 endfunction
 "-----------------------------------------------------------------------------"
 "}}}
