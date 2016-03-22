@@ -6,7 +6,44 @@ endif
 let g:loaded_mycompile = 1
 "------------------------------------------------------------------------------"
 "}}}
+hi GreenBar term=reverse ctermfg=white ctermbg=green guifg=white guibg=green
+hi RedBar   term=reverse ctermfg=white ctermbg=red guifg=white guibg=red
+function s:Bar(type, msg)
+  if a:type == "red"
+    echohl RedBar
+  else
+    echohl GreenBar
+  endif
+  echon a:msg repeat(" ", &columns - strlen(a:msg) - 1)
+  echohl None
+endfunction
+function s:GetFirstError()
+  if getqflist() == []
+    return ''
+  endif
 
+  for error in getqflist()
+    if error['valid']
+      break
+    endif
+  endfor
+  if ! error['valid']
+    return ''
+  endif
+  let error_message = substitute(error['text'], '^ *', '', 'g')
+  let error_message = substitute(error_message, "\n", ' ', 'g')
+  let error_message = substitute(error_message, "  *", ' ', 'g')
+  return error_message
+endfunction
+
+function s:ParseError()
+    let error = s:GetFirstError()
+    if error != ''
+        call s:Bar("red", error)
+    else
+        call s:Bar("green","Passed")
+    endif
+endfunction
 " 编译、运行、调试 {{{2
 "------------------------------------------------------------------------------"
 "定义CompileRun函数，用来调用进行编译和运行
@@ -22,11 +59,13 @@ func! CompileRun()
             exec "silent make"
             set makeprg=make
             exec "!%<.exe"
+            call s:ParseError()
         elseif g:platform == 'linux'
             set makeprg=gcc\ -o\ %<\ %
             exec "silent make"
             set makeprg=make
             exec "!./%<"
+            call s:ParseError()
         endif
     elseif &filetype == 'cpp'
         if g:platform == 'win'
@@ -34,11 +73,13 @@ func! CompileRun()
             exec "silent make"
             set makeprg=make
             exec "!%<.exe"
+            call s:ParseError()
         elseif g:platform == 'linux'
             set makeprg=g++\ -o\ %<\ %
             set makeprg=make
             exec "silent make"
             exec "!./%<"
+            call s:ParseError()
         endif
     elseif &filetype == 'python'
         if g:platform == 'win'
@@ -55,7 +96,7 @@ func! CompileRun()
         endif
     elseif &filetype == 'dot'
         if g:platform == 'win'
-            if exists('g:python_exe')
+            if exists('g:dot_bin')
                 exec "!".g:dot_bin." -Tpng -o %<.png % && start %<.png"
             elseif
                 echo "pls set g:dot_bin first in your vimrc file"
