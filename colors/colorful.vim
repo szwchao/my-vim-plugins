@@ -47,8 +47,6 @@ hi Folded      gui=NONE        guifg=black      guibg=#FFF8DC
 hi FoldColumn  gui=NONE        guifg=black      guibg=#FFF8DC 
 " 左侧的标志条
 hi SignColumn   guibg=black
-" 标志条书签颜色
-hi BookmarkLineColor    guibg=#FFE4C4  guifg=RoyalBlue3
 
 " Other {{{1
 hi Directory    gui=NONE       guifg=NavyBlue   guibg=#FFE9E3

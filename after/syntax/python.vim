@@ -1,10 +1,11 @@
 " Vim syntax file
-" Language:     Python
-" Maintainer:   Dmitry Vasiliev <dima at hlabs dot org>
-" URL:          https://github.com/hdima/python-syntax
-" Last Change:  2013-08-31
-" Filenames:    *.py
-" Version:      3.3.5
+" Language:             Python
+" Current Maintainer:   Dmitry Vasiliev <dima at hlabs dot org>
+" Previous Maintainer:  Neil Schemenauer <nas at python dot ca>
+" URL:                  https://github.com/hdima/python-syntax
+" Last Change:          2015-11-01
+" Filenames:            *.py
+" Version:              3.6.0
 "
 " Based on python.vim (from Vim 6.1 distribution)
 " by Neil Schemenauer <nas at python dot ca>
@@ -24,12 +25,17 @@
 "
 "   Andrea Riciputi
 "   Anton Butanaev
+"   Antony Lee
 "   Caleb Adamantine
+"   David Briscoe
+"   Elizabeth Myers
+"   Ihor Gorobets
 "   Jeroen Ruigrok van der Werven
 "   John Eikenberry
+"   Joongi Kim
 "   Marc Weber
 "   Pedro Algarvio
-"   pydave at GitHub
+"   Victor Salgado
 "   Will Gray
 "   Yuri Habrusiev
 "
@@ -144,20 +150,24 @@ endif
 " Keywords
 "
 
-syn keyword pythonStatement     self
 syn keyword pythonStatement     break continue del
 syn keyword pythonStatement     exec return
 syn keyword pythonStatement     pass raise
 syn keyword pythonStatement     global assert
-syn keyword pythonStatement     lambda yield
+syn keyword pythonStatement     lambda
 syn keyword pythonStatement     with
 syn keyword pythonStatement     def class nextgroup=pythonFunction skipwhite
 syn keyword pythonRepeat        for while
 syn keyword pythonConditional   if elif else
-syn keyword pythonImport        import from
+" The standard pyrex.vim unconditionally removes the pythonInclude group, so
+" we provide a dummy group here to avoid crashing pyrex.vim.
+syn keyword pythonInclude       import
+syn keyword pythonImport        import
 syn keyword pythonException     try except finally
 syn keyword pythonOperator      and in is not or
-syn match	pythonOperator		display "[-+\*/%=]"
+
+syn match pythonStatement   "\<yield\>" display
+syn match pythonImport      "\<from\>" display
 
 if s:Python2Syntax()
   if !s:Enabled("g:python_print_as_function")
@@ -167,8 +177,13 @@ if s:Python2Syntax()
   syn match   pythonFunction    "[a-zA-Z_][a-zA-Z0-9_]*" display contained
 else
   syn keyword pythonStatement   as nonlocal None
+  syn match   pythonStatement   "\<yield\s\+from\>" display
   syn keyword pythonBoolean     True False
   syn match   pythonFunction    "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
+  syn keyword pythonStatement   await
+  syn match   pythonStatement   "\<async\s\+def\>" nextgroup=pythonFunction skipwhite
+  syn match   pythonStatement   "\<async\s\+with\>" display
+  syn match   pythonStatement   "\<async\s\+for\>" display
 endif
 
 "
@@ -176,7 +191,11 @@ endif
 "
 
 syn match   pythonDecorator	"@" display nextgroup=pythonDottedName skipwhite
-syn match   pythonDottedName "[a-zA-Z_][a-zA-Z0-9_]*\%(\.[a-zA-Z_][a-zA-Z0-9_]*\)*" display contained
+if s:Python2Syntax()
+  syn match   pythonDottedName "[a-zA-Z_][a-zA-Z0-9_]*\%(\.[a-zA-Z_][a-zA-Z0-9_]*\)*" display contained
+else
+  syn match   pythonDottedName "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*\%(\.\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*\)*" display contained
+endif
 syn match   pythonDot        "\." display containedin=pythonDottedName
 
 "
