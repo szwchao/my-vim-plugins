@@ -458,7 +458,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
   call s:HL("vimFuncName", s:purple, "", "")
   call s:HL("vimIsCommand", s:foreground, "", "")
   call s:HL("vimFuncVar", s:aqua, "", "")
-  call s:HL("vimLet", s:red, "", "")
+  call s:HL("vimLet", s:orange, "", "")
   call s:HL("vimMapRhsExtend", s:foreground, "", "")
   call s:HL("vimCommentTitle", s:comment, "", "bold")
   call s:HL("vimBracket", s:aqua, "", "")

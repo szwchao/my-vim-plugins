@@ -15,7 +15,7 @@ let g:vim_tools_dir = g:vim_dir . '\tools'
 " 自己写的函数所用的全局变量{{{2
 "------------------------------------------------------------------------------"
 " Python解释器
-let g:python_exe='C:\\Python27\\python.exe -B'
+let g:python_exe='C:\\Python35\\python.exe -B'
 
 
 " vimgrep搜索的文件类型

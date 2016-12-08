@@ -86,7 +86,8 @@ func! CompileRun()
             if exists('g:python_exe')
                 "exec "!".g:python_exe." %"
                 let cmd = g:python_exe.' '.shellescape(expand("%:p"))
-                let l:result=system(cmd)
+                " 转换一下，否则乱码
+                let l:result=iconv(system(cmd), "cp936", "utf-8")
                 call s:Show_Compile_Result(l:result, 'open')
             elseif
                 echo "please set g:python_exe first in your vimrc file"
@@ -180,13 +181,12 @@ fun! s:Show_Compile_Result(result, open_close_option)
 
     " Delete the last blank line
     silent! $delete _
-    " Move the cursor to the beginning of the file
-    normal! G
     call s:CompileSyntax()
     setlocal nomodifiable
     if a:open_close_option == 'close'
         silent! close
     endif
+    call cursor(1, 1)
 endfun
 "}}}
 

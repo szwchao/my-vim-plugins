@@ -156,7 +156,8 @@ syn keyword pythonStatement     pass raise
 syn keyword pythonStatement     global assert
 syn keyword pythonStatement     lambda
 syn keyword pythonStatement     with
-syn keyword pythonStatement     def class nextgroup=pythonFunction skipwhite
+syn keyword pythonDefine        def class nextgroup=pythonFunction skipwhite
+syn keyword pythonDefine        self
 syn keyword pythonRepeat        for while
 syn keyword pythonConditional   if elif else
 " The standard pyrex.vim unconditionally removes the pythonInclude group, so
@@ -175,11 +176,13 @@ if s:Python2Syntax()
   endif
   syn keyword pythonImport      as
   syn match   pythonFunction    "[a-zA-Z_][a-zA-Z0-9_]*" display contained
+  syn match   pythonFunction    "\<\h\w*\>\(\s\|\n\)*("me=e-1
 else
   syn keyword pythonStatement   as nonlocal None
   syn match   pythonStatement   "\<yield\s\+from\>" display
   syn keyword pythonBoolean     True False
   syn match   pythonFunction    "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
+  syn match   pythonFunction    "\<\h\w*\>\(\s\|\n\)*("me=e-1
   syn keyword pythonStatement   await
   syn match   pythonStatement   "\<async\s\+def\>" nextgroup=pythonFunction skipwhite
   syn match   pythonStatement   "\<async\s\+with\>" display
@@ -502,6 +505,7 @@ if version >= 508 || !exists("did_python_syn_inits")
   HiLink pythonRepeat           Repeat
   HiLink pythonException        Exception
   HiLink pythonOperator         Operator
+  HiLink PythonDefine           Define
 
   HiLink pythonDecorator        Define
   HiLink pythonDottedName       Function
