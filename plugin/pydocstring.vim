@@ -8,7 +8,7 @@ if exists('g:pydocstring')
 endif
 let g:pydocstring = 1
 
-if !has("python")
+if !(has("python") || has("python3"))
     echo "需要python支持"
     finish
 endif

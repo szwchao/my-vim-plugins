@@ -20,7 +20,6 @@ fun s:HL(group, fg, bg, attr)
     exec "hi " . a:group . " gui=" . a:attr . " cterm=" . a:attr
   endif
 endfun
-
 " }}}
 
 " Color Palette: {{{
@@ -43,13 +42,13 @@ if s:is_dark " DARK VARIANT
   let s:wine    = ['#af8787', '138']
 
   " Basics:
-  let s:foreground   = ['#c4c4c4', '0']
+  let s:foreground   = ['#abb2af', '0']
   let s:background   = ['#002b36', '0']
   let s:nontext      = ['#333333', '0']
   let s:window       = ['#3a3a3a', '236']
   let s:divider      = ['#5f8787', '66']
   " TODO 已经自定义了comment_fg，comment_bg，但仍然有些地方用到comment，所以先保留原来主题里的comment
-  let s:comment      = ['#8a8a8a', '244']
+  let s:comment      = ['#586e75', '244']
   let s:todo         = ['#d33682', '35']
   let s:error        = ['#dc322f', '218']
   let s:matchparen   = ['#ef008c', '251']
@@ -118,8 +117,8 @@ if s:is_dark " DARK VARIANT
   let s:statusline_inactive_bg = ['#4E4E4E', '0']
 
   " Search 搜索:
-  let s:search_fg = ['#000000', '0']
-  let s:search_bg = ['#FFFF00', '0']
+  let s:search_fg = ['#282c34', '0']
+  let s:search_bg = ['#b58900', '0']
   let s:incsearch_fg = ['#4682B4', '0']
   let s:incsearch_bg = ['#ffffff', '0']
 
