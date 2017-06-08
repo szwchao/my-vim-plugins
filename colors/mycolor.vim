@@ -7,14 +7,19 @@ hi clear
 syntax reset
 let g:colors_name = "mycolor"
 
+let s:is_dark=(&background == 'dark')
 " Helper Functions: {{{
 " Sets the highlighting for the given group
 fun s:HL(group, fg, bg, attr)
+  let fg = s:is_dark ? a:fg[0] : a:fg[2]
+  let bg = s:is_dark ? a:bg[0] : a:bg[2]
+  let ctfg = s:is_dark ? a:fg[1] : a:fg[3]
+  let ctbg = s:is_dark ? a:bg[1] : a:bg[3]
   if !empty(a:fg)
-    exec "hi " . a:group . " guifg=" . a:fg[0] . " ctermfg=" . a:fg[1]
+    exec "hi " . a:group . " guifg=" . fg . " ctermfg=" . ctfg
   endif
   if !empty(a:bg)
-    exec "hi " . a:group . " guibg=" . a:bg[0] . " ctermbg=" . a:bg[1]
+    exec "hi " . a:group . " guibg=" . bg . " ctermbg=" . ctbg
   endif
   if a:attr != ""
     exec "hi " . a:group . " gui=" . a:attr . " cterm=" . a:attr
@@ -23,269 +28,128 @@ endfun
 " }}}
 
 " Color Palette: {{{
-let s:is_dark=(&background == 'dark')
+"                      dark gui, term,  light gui, term
+let s:red          = ['#dc322f', '160', '#df0000', '160']
+let s:green        = ['#859900', '106', '#008700', '28']
+let s:blue         = ['#5fafdf', '74' , '#4271ae', '25']
+let s:pink         = ['#ff5faf', '205', '#d7005f', '161']
+let s:olive        = ['#76BEB0', '73' , '#718c00', '64']
+let s:navy         = ['#4682B4', '67' , '#005f87', '24']
+let s:orange       = ['#cb4b16', '166', '#d75f00', '166']
+let s:purple       = ['#af87af', '139', '#8959a8', '97']
+let s:aqua         = ['#00afaf', '37' , '#3e999f', '73']
+let s:wine         = ['#af8787', '138', '#870087', '90']
 
-if s:is_dark " DARK VARIANT
-  " These color names are corresponding to the original light version,
-  " and they don't represent the HEX code that they store in this block.
-  let s:red     = ['#dc322f', '0'] "Include/Exception
-  let s:green   = ['#859900', '178'] "Boolean/Special
-  let s:blue    = ['#5fafdf', '37'] "Keyword
+" Basics:
+let s:foreground   = ['#abb2af', '145', '#444444', '238']
+let s:background   = ['#002b36', '235', '#F8F8FF', '231']
+let s:nontext      = ['#333333', '236', '#dfafff', '183']
+let s:window       = ['#3a3a3a', '237', '#e4e4e4', '254']
+let s:divider      = ['#5f8787', '66' , '#4271ae', '25' ]
+" TODO 已经自定义了comment_fg，comment_bg，但仍然有些地方用到comment，所以先保留原来主题里的comment
+let s:comment      = ['#586e75', '242', '#878787', '102']
+let s:todo         = ['#d33682', '162', '#ff0000', '196']
+let s:error        = ['#dc322f', '160', '#ff0000', '196']
+let s:matchparen   = ['#ef008c', '198', '#ef008c', '198']
+let s:title        = ['#eb7aa0', '211', '#4271ae', '25']
 
-  let s:pink    = ['#ff5faf', '148'] "Type
-  let s:olive   = ['#76BEB0', '179'] "String
-  let s:navy    = ['#4682B4', '173'] "StorageClass
+let s:constant_fg  = ['#859900', '106', '#8B0000', '88']
+let s:constant_bg  = ['#002b36', '235', '#fee6ff', '225']
+let s:string_fg    = ['#76BEB0', '73' , '#8B0000', '88']
+let s:string_bg    = ['#002b36', '235', '#fee6ff', '225']
+let s:number_fg    = ['#859900', '106', '#00c226', '34']
+let s:number_bg    = ['#002b36', '235', '#dbf8e3', '194']
+let s:identifier   = ['#CDB38B', '180', '#005f87', '24']
+let s:function     = ['#4682B4', '67' , '#0070ff', '27']
+let s:statement_fg = ['#f19dae', '211', '#F06F00', '202']
+let s:statement_bg = ['#002b36', '235', '#FCECE0', '255']
+let s:condition_fg = ['#f19dae', '211', '#F06F00', '202']
+let s:condition_bg = ['#002b36', '235', '#FCECE0', '255']
+let s:operator     = ['#FF0080', '198', '#FF0080', '198']
+let s:preproc_fg   = ['#b294bb', '139', '#BA8C00', '136']
+let s:preproc_bg   = ['#002b36', '235', '#FFF5CF', '230']
+let s:macro        = ['#b294bb', '139', '#9A32CD', '128']
+let s:type_fg      = ['#cb4b16', '166', '#b91f49', '161']
+let s:type_bg      = ['#002b36', '235', '#ffe3e5', '224']
+let s:underlined_fg= ['#E6BC4B', '178', '#000000', '16']
+let s:underlined_bg= ['#002b36', '235', '#FF6EB4', '205']
 
-  let s:orange  = ['#cb4b16', '205'] "Number
-  let s:purple  = ['#af87af', '139'] "Repeat/Conditional
-  let s:aqua    = ['#00afaf', '74'] "Operator/Delimiter
-  let s:wine    = ['#af8787', '138']
+" Cursor 光标:
+let s:cursorline   = ['#303035', '236', '#e4e4e4', '254']
+let s:cursorlinenr = ['#cfddea', '253', '#af0000', '124']
+let s:cursorcolumn = ['#303035', '236', '#e4e4e4', '254']
+let s:colorcolumn  = ['#0a4d5e', '24',  '#ff0000', '196']
+let s:cursorim_fg  = ['#3a553a', '22',  '#f8f8f8', '231']
+let s:cursorim_bg  = ['#d2ff00', '190', '#8000ff', '93']
 
-  " Basics:
-  let s:foreground   = ['#abb2af', '0']
-  let s:background   = ['#002b36', '0']
-  let s:nontext      = ['#333333', '0']
-  let s:window       = ['#3a3a3a', '236']
-  let s:divider      = ['#5f8787', '66']
-  " TODO 已经自定义了comment_fg，comment_bg，但仍然有些地方用到comment，所以先保留原来主题里的comment
-  let s:comment      = ['#586e75', '244']
-  let s:todo         = ['#d33682', '35']
-  let s:error        = ['#dc322f', '218']
-  let s:matchparen   = ['#ef008c', '251']
-  let s:title        = ['#eb7aa0', '0']
+" PMenu 弹出菜单:
+let s:pmenu_fg     = ['#000000', '16',  '#444444', '238']
+let s:pmenu_bg     = ['#b7ba6b', '143', '#bddfff', '153']
+let s:pmenusel_fg  = ['#abb2af', '145', '#444444', '238']
+let s:pmenusel_bg  = ['#224b8f', '25',  '#ffa500', '214']
 
-  let s:constant_fg  = ['#859900', '88']
-  let s:constant_bg  = s:background
-  let s:string_fg    = ['#76BEB0', '0']
-  let s:string_bg    = s:background
-  let s:number_fg    = ['#859900', '0']
-  let s:number_bg    = s:background
-  let s:identifier   = ['#CDB38B', '0']
-  let s:function     = ['#4682B4', '0']
-  let s:statement_fg = ['#f19dae', '202']
-  let s:statement_bg = s:background
-  let s:condition_fg = ['#f19dae', '202']
-  let s:condition_bg = s:background
-  let s:operator     = ['#FF0080', '198']
-  let s:preproc_fg   = ['#b294bb', '136']
-  let s:preproc_bg   = s:background
-  let s:macro        = s:preproc_fg
-  let s:type_fg      = ['#cb4b16', '161']
-  let s:type_bg      = s:background
-  let s:underlined_fg= ['#E6BC4B', '16']
-  let s:underlined_bg= s:background
+" Comment 注释:
+let s:comment_fg   = ['#586e75', '242', '#4682B4', '67']
+let s:comment_bg   = ['#002b36', '235', '#F0F6FF', '255']
 
-  " Cursor 光标:
-  let s:cursorline   = ['#303035', '254']
-  let s:cursorlinenr = ['#cfddea', '124']
-  let s:cursorcolumn = ['#303035', '254']
-  let s:colorcolumn  = ['#0a4d5e', '254']
-  let s:cursorim_fg  = ['#3a553a', '231']
-  let s:cursorim_bg  = ['#d2ff00', '93']
+" Spelling 拼写:
+let s:spellbad     = ['#8B3A62', '125', '#ffafdf', '218']
+let s:spellcap     = ['#5f005f', '53',  '#ffffaf', '229']
+let s:spellrare    = ['#005f00', '22',  '#afff87', '156']
+let s:spelllocal   = ['#00005f', '17',  '#dfdfff', '189']
 
-  " PMenu 弹出菜单:
-  let s:pmenu_fg      = ['#000000', '252']
-  let s:pmenu_bg      = ['#b7ba6b', '252']
-  let s:pmenusel_fg   = s:foreground
-  let s:pmenusel_bg   = ['#224b8f', '214']
+" Tabline:
+let s:tabline_bg             = ['#212121', '234', '#ffafdf', '218']
+let s:tabline_active_fg      = ['#cfddea', '253', '#444444', '238']
+let s:tabline_active_bg      = ['#000000', '16',  '#e4e4e4', '254']
+let s:tabline_inactive_fg    = ['#a9ce49', '149', '#F8F8FF', '231']
+let s:tabline_inactive_bg    = ['#000000', '16',  '#3e999f', '73']
 
-  " Comment 注释:
-  let s:comment_fg    = ['#586e75', '0']
-  let s:comment_bg    = s:background
+" Statusline 状态栏:
+let s:statusline_active_fg   = ['#cfddea', '253', '#e4e4e4', '254']
+let s:statusline_active_bg   = ['#4E4E4E', '239', '#005f87', '24']
+let s:statusline_inactive_fg = ['#a9ce49', '149', '#444444', '238']
+let s:statusline_inactive_bg = ['#4E4E4E', '239', '#d0d0d0', '252']
 
-  " Spelling 拼写:
-  let s:spellbad   = ['#8B3A62', '52']
-  let s:spellcap   = ['#5f005f', '53']
-  let s:spellrare  = ['#005f00', '22']
-  let s:spelllocal = ['#00005f', '17']
+" LineNumber 行号:
+let s:linenumber_fg = ['#696969', '242', '#6495ED', '69']
+let s:linenumber_bg = ['#073642', '236', '#FDF5E6', '255']
 
-  " Tabline:
-  let s:tabline_bg          = ['#071925', '0']
-  let s:tabline_active_fg   = ['#cfddea', '0']
-  let s:tabline_active_bg   = ['#000000', '0']
-  let s:tabline_inactive_fg = ['#a9ce49', '0']
-  let s:tabline_inactive_bg = ['#000000', '0']
+" Search 搜索:
+let s:search_fg     = ['#282c34', '236', '#444444', '238']
+let s:search_bg     = ['#b58900', '136', '#ffe270', '221']
+let s:incsearch_fg  = ['#4682B4', '67' , '#000080', '18']
+let s:incsearch_bg  = ['#ffffff', '231', '#F8F8FF', '231']
 
-  " LineNumber 行号:
-  let s:linenumber_fg   = ['#696969', '0']
-  let s:linenumber_bg   = ['#073642', '0']
+" Visual 可视化区域:
+let s:visual_fg     = ['#000000', '16',  '#F8F8FF', '231']
+let s:visual_bg     = ['#8787af', '103', '#4271ae', '25']
 
-  " Statusline 状态栏:
-  let s:statusline_active_fg   = ['#cfddea', '0']
-  let s:statusline_active_bg   = ['#4E4E4E', '0']
-  let s:statusline_inactive_fg = ['#a9ce49', '0']
-  let s:statusline_inactive_bg = ['#4E4E4E', '0']
+" 目录名
+let s:directory_fg  = ['#4682B4', '67',  '#000080', '18']
+let s:directory_bg  = ['#002b36', '235', '#FFE9E3', '224']
 
-  " Search 搜索:
-  let s:search_fg = ['#282c34', '0']
-  let s:search_bg = ['#b58900', '0']
-  let s:incsearch_fg = ['#4682B4', '0']
-  let s:incsearch_bg = ['#ffffff', '0']
+" Folded 折叠:
+let s:folded_fg     = ['#686f9a', '60' , '#005f87', '24']
+let s:folded_bg     = ['#1e2132', '235', '#afdfff', '153']
 
-  " Visual 可视化区域:
-  let s:visual_fg = ['#000000', '16']
-  let s:visual_bg = ['#8787af', '103']
+" WildMenu:                                                
+let s:wildmenu_fg   = ['#1e2132', '235', '#444444', '238']
+let s:wildmenu_bg   = ['#d2ff00', '190', '#ffff00', '226']
 
-  " 目录名
-  let s:directory_fg  = ['#4682B4', '0']
-  let s:directory_bg  = s:background
+" Diff:                                                    
+let s:diffadd_fg    = ['#D2EBBE', '194', '#003300', '22']
+let s:diffadd_bg    = ['#437019', '22' , '#b5eeb5', '157']
+let s:diffdelete_fg = ['#FFF5EE', '231', '#003300', '22']
+let s:diffdelete_bg = ['#70000A', '52' , '#FFDDDD', '224']
+let s:difftext_fg   = ['#000000', '16' , '#003300', '22']
+let s:difftext_bg   = ['#8FBFDC', '110', '#87B0FF', '111']
+let s:diffchange_fg = ['#FFF5EE', '231', '#003300', '22']
+let s:diffchange_bg = ['#2B5B77', '24' , '#E6E6FA', '189']
 
-  " Folded 折叠:
-  let s:folded_fg = ['#686f9a', '0']
-  let s:folded_bg = ['#1e2132', '0']
+" Misc 其它                                                
+let s:ignore        = ['#ef008c', '198', '#ef008c', '198']
 
-  " WildMenu:
-  let s:wildmenu_fg  = ['#1e2132', '0']
-  let s:wildmenu_bg  = ['#d2ff00', '226']
-
-  " Diff:
-  let s:diffadd_fg    = ['#D2EBBE', '22']
-  let s:diffadd_bg    = ['#437019', '157']
-
-  let s:diffdelete_fg = ['#FFF5EE', '22']
-  let s:diffdelete_bg = ['#70000A', '224']
-
-  let s:difftext_fg   = ['#000000', '22']
-  let s:difftext_bg   = ['#8FBFDC', '111']
-
-  let s:diffchange_fg = ['#FFF5EE', '22']
-  let s:diffchange_bg = ['#2B5B77', '189']
-
-  " Misc 其它
-  let s:ignore        = ['#ef008c', '198']
-
-else " LIGHT VARIANT
-
-  let s:red     = ['#df0000', '160'] "Include/Exception
-  let s:green   = ['#008700', '28'] "Boolean/Special
-  let s:blue    = ['#4271ae', '25'] "Keyword
-
-  let s:pink    = ['#d7005f', '161'] "Type
-  let s:olive   = ['#718c00', '64'] "String
-  let s:navy    = ['#005f87', '24'] "StorageClass
-
-  let s:orange  = ['#d75f00', '166'] "Number
-  let s:purple  = ['#8959a8', '97'] "Repeat/Conditional
-  let s:aqua    = ['#3e999f', '31'] "Operator/Delimiter
-  let s:wine    = ['#870087', '90']
-
-  " Basics:
-  let s:foreground   = ['#444444', '238']
-  let s:background   = ['#F8F8FF', '255']
-  let s:nontext      = ['#dfafff', '189'] " #333333
-  let s:window       = ['#e4e4e4', '254']
-  let s:divider      = s:navy
-  " TODO 已经自定义了comment_fg，comment_bg，但仍然有些地方用到comment，所以先保留原来主题里的comment
-  let s:comment      = ['#878787', '102']
-  let s:todo         = ['#ff0000', '35']
-  let s:error        = ['#ff0000', '218']
-  let s:matchparen   = ['#ef008c', '251']
-  let s:title        = s:blue
-
-  let s:constant_fg  = ['#8B0000', '88']
-  let s:constant_bg  = ['#fee6ff', '88']
-  let s:string_fg    = s:constant_fg
-  let s:string_bg    = s:constant_bg
-  let s:number_fg    = ['#00c226', '34']
-  let s:number_bg    = ['#dbf8e3', '194']
-  let s:identifier   = s:navy
-  let s:function     = ['#0070ff', '75']
-  let s:statement_fg = ['#F06F00', '202']
-  let s:statement_bg = ['#FCECE0', '255']
-  let s:condition_fg = ['#F06F00', '202']
-  let s:condition_bg = ['#FCECE0', '255']
-  let s:operator     = ['#FF0080', '198']
-  let s:preproc_fg   = ['#BA8C00', '136']
-  let s:preproc_bg   = ['#FFF5CF', '230']
-  let s:macro        = ['#9A32CD', '128']
-  let s:type_fg      = ['#b91f49', '161']
-  let s:type_bg      = ['#ffe3e5', '161']
-  let s:underlined_fg= ['#000000', '16']
-  let s:underlined_bg= ['#FF6EB4', '205']
-
-  " Cursor 光标:
-  let s:cursorline   = ['#e4e4e4', '254']
-  let s:cursorlinenr = ['#af0000', '124']
-  let s:cursorcolumn = ['#e4e4e4', '254']
-  let s:colorcolumn  = ['#ff0000', '254']
-  let s:cursorim_fg  = ['#f8f8f8', '231']
-  let s:cursorim_bg  = ['#8000ff', '93']
-
-  " PMenu 弹出菜单:
-  let s:pmenu_fg     = s:foreground
-  let s:pmenu_bg     = ['#bddfff', '252']
-  let s:pmenusel_fg  = s:foreground
-  let s:pmenusel_bg  = ['#ffa500', '214']
-
-  " Comment 注释:
-  let s:comment_fg   = ['#4682B4', '102']
-  let s:comment_bg   = ['#F0F6FF', '102']
-
-  " Spelling 拼写:
-  let s:spellbad   = ['#ffafdf', '218']
-  let s:spellcap   = ['#ffffaf', '229']
-  let s:spellrare  = ['#afff87', '156']
-  let s:spelllocal = ['#dfdfff', '189']
-
-  " Tabline:
-  let s:tabline_bg          = s:navy
-  let s:tabline_active_fg   = s:foreground
-  let s:tabline_active_bg   = s:window
-  let s:tabline_inactive_fg = s:background
-  let s:tabline_inactive_bg = s:aqua
-
-  " LineNumber 行号:
-  let s:linenumber_fg   = ['#6495ED', '249']
-  let s:linenumber_bg   = ['#FDF5E6', '249']
-
-  " Statusline 状态栏:
-  let s:statusline_active_fg   = s:window
-  let s:statusline_active_bg   = s:navy
-  let s:statusline_inactive_fg = s:foreground
-  let s:statusline_inactive_bg = ['#d0d0d0', '252']
-
-  " Search 搜索:
-  let s:search_fg = s:foreground
-  let s:search_bg = ['#ffe270', '0']
-  let s:incsearch_fg = ['#000080', '0']
-  let s:incsearch_bg = s:background
-
-  " Visual 可视化区域:
-  let s:visual_fg = s:background
-  " #D6E3F8
-  let s:visual_bg = s:blue
-
-  " 目录名
-  let s:directory_fg  = ['#000080', '18']
-  let s:directory_bg  = ['#FFE9E3', '224']
-
-  " Folded 折叠:
-  let s:folded_fg = s:navy
-  " #FFF8DC
-  let s:folded_bg = ['#afdfff', '153']
-
-  " WildMenu:
-  let s:wildmenu_fg  = s:foreground
-  " #E9967A
-  let s:wildmenu_bg  = ['#ffff00', '226']
-
-  " Diff:
-  let s:diffadd_fg    = ['#003300', '22']
-  let s:diffadd_bg    = ['#b5eeb5', '157']
-
-  let s:diffdelete_fg = ['#003300', '22']
-  let s:diffdelete_bg = ['#FFDDDD', '224']
-
-  let s:difftext_fg   = ['#003300', '22']
-  let s:difftext_bg   = ['#87B0FF', '111']
-
-  let s:diffchange_fg = ['#003300', '22']
-  let s:diffchange_bg = ['#E6E6FA', '189']
-
-  " Misc 其它
-  let s:ignore        = ['#ef008c', '198']
-
-endif
 " }}}
 
 " Syntax Highlighting: {{{
@@ -294,13 +158,6 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
   " Vim Highlighting
   call s:HL("Normal", s:foreground, s:background, "")
 
-  if s:is_dark " DARK VARIANT
-    set background=dark
-  else " LIGHT VARIANT
-    set background=light
-  endif
-
-  highlight LineNr term=bold cterm=NONE ctermfg=darkgrey ctermbg=NONE gui=NONE guifg=darkgrey guibg=NONE
   " 窗口尾部的 '~' 和 '@'，'showbreak' 的字符和其它在文本里实际不存在的字符 (例如，代替行尾放不下的双宽字符而显示的 '>')。
   call s:HL("NonText", s:nontext, "", "")
   " :map 列出的 Meta 和特殊键，也包括文本里不可显示字符的显示和'listchars'。
@@ -325,12 +182,12 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
   call s:HL("Visual", s:visual_fg, s:visual_bg, "")
   " 目录名
   call s:HL("Directory", s:directory_fg, s:directory_bg, "")
-  " #3A9CFF
+  " #3A9CFF, 75
   call s:HL("ModeMsg", s:olive, "", "")
-  " #2E8B57
+  " #2E8B57, 29
   call s:HL("MoreMsg", s:olive, "", "")
   call s:HL("Question", s:olive, "", "")
-  " #EB1513
+  " #EB1513, 196
   call s:HL("ErrorMsg", s:background, s:pink, "")
   call s:HL("WarningMsg", s:background, s:pink, "")
   " 配对的括号
@@ -360,7 +217,6 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
     call s:HL("ColorColumn", "", s:colorcolumn, "none")
   end
 
-  " Standard Group Highlighting:
   " Comment 任何注释
   call s:HL("Comment", s:comment_fg, s:comment_bg, "")
   " Constant 任何常数
@@ -703,7 +559,16 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 
   " Plugin: Ctrlp
   call s:HL("CtrlPMatch", s:pink, "", "")
-  
+
+  " Plugin: vim-bookmarks
+  "Number
+  call s:HL("BookmarkSign", s:green, "", "None")
+  "Special
+  call s:HL("BookmarkAnnotationSign", s:red, "", "None")
+  "TabLineFill
+  call s:HL("BookmarkLine", "", ["#003336", "23", '#E2FAE2', '194'], "None")
+  "TabLine
+  call s:HL("BookmarkAnnotationLine", "", ["#391B23", "52", '#FFDDDD', '224'], "None")
 
   "=====================================================================
   " SYNTAX HIGHLIGHTING CODE BELOW THIS LINE ISN'T TESTED FOR THIS THEME

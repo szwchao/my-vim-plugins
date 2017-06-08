@@ -9,37 +9,30 @@ let g:loaded_myplugin = 1
 "------------------------------------------------------------------------------"
 "}}}
 
+if (has("win32") || has("win95") || has("win64") || has("win16"))
+    let s:slash = '\'
+else
+    let s:slash = '/'
+endif
+
 " 更换主题{{{2
 "------------------------------------------------------------------------------"
 function! ToggleColorScheme(...)
     if a:0 == 0
-        "取得所有配色
-        "if g:platform == 'win'
-            "let dir = $VIM . '/vimfiles/colors/'
-        "else
-            "let dir = expand('~/.vim/colors/')
-        "endif
-        "let colors = GetAllFilesInDir(dir, 'vim')
-        "去掉路径及扩展名
-        "for i in range(len(colors))
-            "let colors[i] = fnamemodify(colors[i], ':t:r')
-        "endfor
-        let g:colors = []
+        let s:colors = []
         for fname in split(globpath(&runtimepath, 'colors/*.vim'), '\n')
-            call add(g:colors, fnamemodify(fname, ':t:r'))
+            call add(s:colors, fnamemodify(fname, ':t:r'))
         endfor
         "从g:colors_name得到当前配色的索引
-        let i = index(g:colors, g:colors_name)
+        let i = index(s:colors, g:colors_name)
         "取下一个配色方案
-        let i = (i+1) % len(g:colors)
+        let i = (i+1) % len(s:colors)
         "加载配色方案
-        exe 'colorscheme ' . get(g:colors, i)
+        exe 'colorscheme ' . get(s:colors, i)
     elseif a:0 == 1
         let color = a:1
         "加载配色方案
         exe 'colorscheme ' . color
-        " 重新高亮状态栏
-        "call SetMyStatusLine()
     endif
 
     "Notice:如果要看当前配色，echo g:colors_name
@@ -54,6 +47,18 @@ fun! AutoChangeColorScheme()
         call ToggleColorScheme('bluechia')
     endif
 endfun
+"------------------------------------------------------------------------------"
+"}}}
+
+" 切换背景{{{2
+"------------------------------------------------------------------------------"
+function! s:ToggleBackground()
+    let &background = ( &background == "dark"? "light" : "dark" )
+    if exists("g:colors_name")
+        exe "colorscheme " . g:colors_name
+    endif
+endfunction
+command! -nargs=0 ToggleBackground :call s:ToggleBackground() | silent! echo g:colors_name
 "------------------------------------------------------------------------------"
 "}}}
 
@@ -209,7 +214,7 @@ fun! DisplayAllColors()
    " Display the result
    silent! %delete _
 
-   let fname = $VIMRUNTIME . g:slash . 'rgb.txt'
+   let fname = $VIMRUNTIME . s:slash . 'rgb.txt'
    let rgb_pattern = '^\s*\zs\(\d\+\s*\)\{3}\ze\w*$'
    let color_pattern = '^\s*\(\d\+\s*\)\{3}\zs\w*$'
    let result = []

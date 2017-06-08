@@ -15,6 +15,12 @@ fun! s:Set(var, val)
     end
 endfun
 
+if (has("win32") || has("win95") || has("win64") || has("win16"))
+    let s:slash = '\'
+else
+    let s:slash = '/'
+endif
+
 "供状态条以及编译使用
 call s:Set('g:current_project_name', '')
 " 用源码目录创建filenametags
@@ -25,7 +31,7 @@ call s:Set('g:AllwaysUseDefaultTagsCscopeName', '1')
 call s:Set('g:EnableMultiSourceCodeDir', '0')
 " 工程目录名
 "call s:Set('g:MyProjectConfigDir', $HOME.'\MyProject')
-call s:Set('g:MyProjectConfigDir', 'E:\Workspace\MyProject')
+call s:Set('g:MyProjectConfigDir', expand('~/MyProject'))
 " 配置文件名
 call s:Set('g:MyProjectConfigFile', 'MyProjectFile')
 if g:platform == 'win'
@@ -101,7 +107,7 @@ endfun
 " @返 回 值：   1 - 成功， 0 - 失败
 "* --------------------------------------------------------------------------*/
 fun! s:SetMyProjectConfigFile()
-    let l:filename = expand(s:GetMyProjectConfigDir() .g:slash. g:MyProjectConfigFile)
+    let l:filename = expand(s:GetMyProjectConfigDir() .s:slash. g:MyProjectConfigFile)
     if filereadable(l:filename)
         let s:my_project_config_file = l:filename
         return 1
@@ -335,10 +341,10 @@ fun! s:AddNewMyProject()
         let filenametags = input("input filenametags file name(Default:filenametags)")
     endif
     let esc_filename_chars = ' *?[{`$%#"|!<>();&' . "'\t\n"
-    let this_project_dir = escape(s:GetMyProjectConfigDir().g:slash.project_name, esc_filename_chars)
-    let tags = this_project_dir.g:slash.tags
-    let cscope = this_project_dir.g:slash.cscope
-    let filenametags = this_project_dir.g:slash.filenametags
+    let this_project_dir = escape(s:GetMyProjectConfigDir().s:slash.project_name, esc_filename_chars)
+    let tags = this_project_dir.s:slash.tags
+    let cscope = this_project_dir.s:slash.cscope
+    let filenametags = this_project_dir.s:slash.filenametags
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     let source_list = []
@@ -355,7 +361,7 @@ fun! s:AddNewMyProject()
     endfor
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    call mkdir(s:GetMyProjectConfigDir().g:slash.project_name, 'p')
+    call mkdir(s:GetMyProjectConfigDir().s:slash.project_name, 'p')
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     let tags_cscope_filenametags_list = []
@@ -409,7 +415,7 @@ fun! s:RemoveProjectUnderCursor()
             let cur_prj_name = l:cur_prj['name']
         endif
         let esc_filename_chars = ' *?[{`$%#"|!<>();&' . "'\t\n"
-        let my_cur_prj_dir = escape(s:GetMyProjectConfigDir().g:slash.cur_prj_name, esc_filename_chars)
+        let my_cur_prj_dir = escape(s:GetMyProjectConfigDir().s:slash.cur_prj_name, esc_filename_chars)
         call s:DeleteDir(my_cur_prj_dir)
         echo "删除成功！"
     endif
@@ -452,7 +458,7 @@ fun! s:GetProjectUnderCursor()
         let l:cur_prj = prj_dict[prj_name]
         call extend(l:cur_prj, {'name':prj_name})
         let esc_filename_chars = ' *?[{`$%#"|!<>();&' . "'\t\n"
-        let prj_dir = escape(s:GetMyProjectConfigDir().g:slash.prj_name, esc_filename_chars)
+        let prj_dir = escape(s:GetMyProjectConfigDir().s:slash.prj_name, esc_filename_chars)
         call extend(l:cur_prj, {'MyPrjDir':prj_dir})
         return l:cur_prj
     elseif
@@ -478,7 +484,7 @@ fun! s:LoadProjectUnderCursor()
             let symbol = get(g:, 'airline#extensions#branch#symbol', g:airline_symbols.branch)
             "let g:airline_section_b = symbol . GetProjectName()
             call airline#parts#define_function('prj', 'GetProjectName')
-            let g:airline_section_a = airline#section#create(['mode', ' ★ ', 'prj'])
+            let g:airline_section_a = airline#section#create(['mode', " \uF135 ", 'prj'])
             exe ":AirlineRefresh"
         endif
     elseif
@@ -528,7 +534,7 @@ fun! s:SetTagsCscopeFilenametags()
     endif
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     "MRU
-    let g:MRU_File = s:GetMyProjectConfigDir() . g:slash . cur_prj['name'] . g:slash. 'mru'
+    let g:MRU_File = s:GetMyProjectConfigDir() . s:slash . cur_prj['name'] . s:slash. 'mru'
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     "Ctrlp
     exe "nmap <C-p> :<C-u>CtrlP " . cur_prj["SourceCodeDir0"] . "<CR>"
@@ -724,7 +730,7 @@ fun! UpdateMyProjectTags(src_dir_list, tags)
     endif
 
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    let l:output_cscope = l:output_dir.g:slash.'cscope.files'
+    let l:output_cscope = l:output_dir.s:slash.'cscope.files'
     if filereadable(l:output_cscope)
         call delete(l:output_cscope)
     endif
@@ -772,7 +778,7 @@ fun! UpdateMyProjectCscope(src_dir_list, cscope)
     let l:cmd = g:MyProjectFindProgram
     let l:ext_filter = g:MyProjectFileFilter
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    let l:output_cscope = l:output_dir.g:slash.'cscope.files'
+    let l:output_cscope = l:output_dir.s:slash.'cscope.files'
     if !filereadable(l:output_cscope)
         let starttime = reltime()  " start the clock
         echo "生成cscope文件列表中..."
